@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export function App() {
 
-  // const [selectedTrackId, setSelectedTrackId] = useState(null)
+  const [selectedTrackId, setSelectedTrackId] = useState(null)
   const [selectedTrack, setSelectedTrack] = useState(null)
 
   const [tracks, setTracks] = useState(null)
@@ -31,7 +31,10 @@ export function App() {
   return (
     <div>
       <h1>Musicfun player</h1>
-      <button onClick={() => { setSelectedTrack(null) }}>reset selection</button>
+      <button onClick={() => {
+        setSelectedTrack(null)
+        setSelectedTrackId(null)
+      }}>reset selection</button>
       <div style={{
         display: "flex",
         gap: "30px"
@@ -40,10 +43,11 @@ export function App() {
           {tracks.map((track) => {
             return (
               <li key={track.id} style={{
-                border: track === selectedTrack ? '1px solid red' : 'none'
+                border: track.id === selectedTrackId ? '1px solid red' : 'none'
               }}>
                 <div onClick={() => {
                   setSelectedTrack(track)
+                  setSelectedTrackId(track.id)
 
                   fetch(`https://musicfun.it-incubator.app/api/1.0/playlists/tracks/${track.id}/`, {
                     headers: {
@@ -68,7 +72,15 @@ export function App() {
             <h3>
               Details
             </h3>
-            {selectedTrack === null ? 'Track is not selected' : selectedTrack.attributes.title}
+            {selectedTrack === null ? 'Track is not selected' :
+              <div>
+                <h3>{selectedTrack.attributes.title}</h3>
+                <h4>Lyrics</h4>
+                <p>
+                  {selectedTrack.attributes.lyrics ?? 'no lyrics'}
+                </p>
+              </div>
+            }
           </div>
         </ul>
       </div>
