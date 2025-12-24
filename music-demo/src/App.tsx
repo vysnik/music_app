@@ -72,7 +72,11 @@ export function App() {
             <h3>
               Details
             </h3>
-            {selectedTrack === null ? 'Track is not selected' :
+            {!selectedTrack && !selectedTrackId && 'Track is not selected'}
+            {!selectedTrack && selectedTrackId && 'Loading..'}
+            {selectedTrack && selectedTrackId && selectedTrack.id !== selectedTrackId && 'Loading..'}
+            {
+              selectedTrack &&
               <div>
                 <h3>{selectedTrack.attributes.title}</h3>
                 <h4>Lyrics</h4>
@@ -81,6 +85,8 @@ export function App() {
                 </p>
               </div>
             }
+
+
           </div>
         </ul>
       </div>

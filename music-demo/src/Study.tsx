@@ -1,74 +1,61 @@
-import { useState } from "react"
-
-const tasks = [
-  {
-    id: 1,
-    title: "Купить продукты на неделю",
-    isDone: false,
-    addedAt: "1 сентября",
-    priority: 2,
-  },
-  {
-    id: 2,
-    title: "Полить цветы",
-    isDone: true,
-    addedAt: "2 сентября",
-    priority: 0,
-  },
-  {
-    id: 3,
-    title: "Сходить на тренировку",
-    isDone: false,
-    addedAt: "3 сентября",
-    priority: 1,
-  },
-]
-
-
+import { useEffect, useState } from "react"
 
 export function App() {
+  const [selectedTask, setSelectedTask] = useState(null)
+  const [selectedTaskID, setSelectedTaskID] = useState(null)
+  const [tasks, setTasks] = useState([])
 
-  const [selectedTaskId, setSelectedTaskkId] = useState(null);
+  useEffect(() => {
+    fetch("https://trelly.it-incubator.app/api/1.0/boards/tasks", {
+      headers: { "api-key": "8698cd1f-ce62-4fe5-ad5f-20c0c0180e8d" },
+    })
+      .then((res) => res.json())
+      .then((json) => setTasks(json.data))
+      .catch(console.error)
+  }, [])
 
-  const maxPriority = Math.max(...tasks.map(task => task.priority));
-
+  if (!tasks) return <div>Загрузка...</div>
 
   return (
     <div>
-      <button onClick={() => {
-        setSelectedTaskkId(null)
-      }}>Сбросить выделение</button>
-      {
-        tasks.map((task) => {
-          return (
+      <button onClick={() => setSelectedTask(null)}>Сбросить выделение</button>
+      <div style={{ display: 'flex', gap: "30px" }}>
+        <div>
+          {tasks.map((task) => (
             <div
-              onClick={() => {
-                setSelectedTaskkId(task.id)
-              }}
               key={task.id}
+              onClick={() => {
+                setSelectedTask(task)
+                setSelectedTaskID(task.id)
+              }}
               style={{
-                border: task.id === selectedTaskId ? '3px solid blue' : '3px solid black',
+                border: task === selectedTask ? "3px solid blue" : "3px solid black",
                 marginBottom: "5px",
-                backgroundColor: task.priority === maxPriority ? 'orange' : 'white'
               }}
             >
               <div>
                 <b>Заголовок:</b>{" "}
-                <span
-                  style={{
-                    textDecoration: task.isDone ? 'line-through' : 'none'
-                  }}
-                >{task.title}</span>
+                <span style={{ textDecoration: task.isDone ? "line-through" : "none" }}>
+                  {task.attributes.title}
+                </span>
               </div>
+
               <div>
                 <b>Выполнено:</b>
-                <input type="checkbox" checked={task.isDone} />
+                <input type="checkbox" checked={task.isDone} readOnly />
               </div>
-              <div><b>Дата создания задачи:</b> {task.addedAt}</div>
+
+              <div><b>Дата создания задачи:</b> {new Date(task.attributes.addedAt).toLocaleString()}</div>
             </div>
-          )
-        })
-      }
+          ))}
+        </div>
+        <div>
+          {!selectedTask && 'Track is not selected'}
+        </div>
+      </div>
+
+
+
     </div>
   )
 }
