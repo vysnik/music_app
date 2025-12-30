@@ -7,7 +7,6 @@ export function App() {
 
   const [selectedTrackId, setSelectedTrackId] = useState(null)
   const [selectedTrack, setSelectedTrack] = useState(null)
-
   const [tracks, setTracks] = useState(null)
 
   useEffect(() => {
