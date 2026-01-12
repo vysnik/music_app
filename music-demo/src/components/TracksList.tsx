@@ -1,46 +1,51 @@
 import { useEffect, useState } from "react";
+import { TrackItem } from "./TrackItem";
 
-export function TracksList() {
-    const [tracks, setTracks] = useState(null)
-    const [selectedTrackId, setSelectedTrackId] = useState(null)
+export function TracksList({ selectedTrackId, onTrackSelect }) {
+  const [tracks, setTracks] = useState(null);
 
+  useEffect(() => {
+    fetch("https://musicfun.it-incubator.app/api/1.0/playlists/tracks", {
+      headers: {
+        "api-key": "8698cd1f-ce62-4fe5-ad5f-20c0c0180e8d",
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => setTracks(json.data));
+  }, []);
 
-    useEffect(() => {
-        fetch('https://musicfun.it-incubator.app/api/1.0/playlists/tracks', {
-            headers: {
-                "api-key": "8698cd1f-ce62-4fe5-ad5f-20c0c0180e8d",
-            }
-        }).then(res => res.json()).then(json => setTracks(json.data))
-    }, [])
+  if (tracks === null) {
+    return <span>loading...</span>;
+  }
 
-    if (tracks === null) {
-        return <span>loading...</span>
-    }
+  if (tracks.length === 0) {
+    return <span>No tracks</span>;
+  }
 
-    if (tracks.length === 0) {
-        return <span>No tracks</span>
-    }
+  const handleResetClick = () => {
+    onTrackSelect?.(null);
+  };
 
-    return (
-        <ul>
-            {tracks.map((track) => {
-                return (
-                    <li key={track.id} style={{
-                        border: track.id === selectedTrackId ? '1px solid red' : 'none'
-                    }}>
-                        <div onClick={() => {
-                            setSelectedTrackId(track.id)
-                        }}>
-                            {track.attributes.title}
-                        </div>
-                        <audio
-                            controls
-                            src={track.attributes.attachments[0].url}
-                        ></audio>
-                    </li>
-                )
-            })
-            }
-        </ul>
-    )
+  const handleClick = (trackId) => {
+    onTrackSelect?.(trackId);
+  };
+
+  return (
+    <div>
+      <button onClick={handleResetClick}>reset</button>
+      <hr />
+      <ul>
+        {tracks.map((track) => {
+          return (
+            <TrackItem
+              key={track.id}
+              track={track}
+              isSelected={track.id === selectedTrackId}
+              onSelect={handleClick}
+            />
+          );
+        })}
+      </ul>
+    </div>
+  );
 }
